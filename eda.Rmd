@@ -1,0 +1,57 @@
+---
+title: "Exploratory Data Analysis of English Twiiter Corpus"
+author: "Brandon Hansen"
+date: "8/12/2019"
+output: pdf_document
+---
+```{r}
+library("tm")
+```
+
+
+```{r}
+tw_file <- file(description = "en_US.twitter.txt", open = "r")
+tw_lines <- readLines(tw_file)
+close(tw_file)
+```
+```{r}
+smpl <- sample(tw_lines, 20000)
+tw_corpus <- Corpus(VectorSource(smpl))
+```
+
+```{r}
+tw_corpus <- tm_map(tw_corpus, removeNumbers)
+tw_corpus <- tm_map(tw_corpus, removeWords, stopwords("english"))
+tw_corpus <- tm_map(tw_corpus, removePunctuation)
+tw_corpus <- tm_map(tw_corpus, stripWhitespace)
+```
+
+# Some words are more frequent than others - what are the distributions of word frequencies? 
+
+```{r}
+dtm <- TermDocumentMatrix(tw_corpus)
+m <- as.matrix(dtm)
+v <- sort(rowSums(m), decreasing = TRUE)
+d <- data.frame(word = names(v), freq = v)
+head(d, 10)
+```
+
+```{r}
+top_100 <- head(d, 100)
+hist(top_100$freq, breaks = 50, density = 50)
+barplot(top_100$freq, las = 2, names.arg = top_100$word)
+```
+
+# What are the frequencies of 2-grams and 3-grams in the dataset? 
+
+```{r}
+library(tau) 
+library(data.table)
+
+two_g <- textcnt(, method = "string", n = 2, tolower = FALSE)
+
+bigram <- data.table(w1w2 = names(two_g), freq = unclass(two_g), length = nchar(names(two_g)))
+
+
+```
+
